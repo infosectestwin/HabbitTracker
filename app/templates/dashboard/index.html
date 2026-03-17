@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div x-data="dashboard()" x-init="initSortable()" class="space-y-6">
+
+    <!-- Header & Progress -->
+    <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+        <div class="flex justify-between items-center mb-4">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Today's Habits</h2>
+                <p class="text-sm text-gray-500 dark:text-gray-400 font-medium">
+                    {{ today.strftime('%A, %B %d, %Y') }} (Central Time)
+                </p>
+            </div>
+            <button @click="showAddModal = true" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                + Add Habit
+            </button>
+        </div>
+        
+        <!-- Progress Bar -->
+        <div class="relative pt-1">
+            <div class="flex mb-2 items-center justify-between">
+                <div>
+                    <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-indigo-600 bg-indigo-200 dark:bg-indigo-900 dark:text-indigo-200">
+                        Progress
+                    </span>
+                </div>
+                <div class="text-right">
+                    <span class="text-xs font-semibold inline-block text-indigo-600 dark:text-indigo-200" x-text="progress + '%'"></span>
+                </div>
+            </div>
+            <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-indigo-200 dark:bg-gray-700">
+                <div :style="'width: ' + progress + '%'" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-indigo-500 transition-all duration-500"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Habits List -->
+    <ul id="habit-list" class="space-y-3">
+        {% for habit in habits %}
+        <li data-id="{{ habit.id }}" class="bg-white dark:bg-gray-800 shadow rounded-lg p-4 flex items-center justify-between cursor-move group">
+            <div class="flex items-center space-x-4">
+                <div class="text-gray-400 cursor-grab active:cursor-grabbing">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white {% if habit.id in completed_ids %}line-through text-gray-500{% endif %}">
+                        {{ habit.name }}
+                    </h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">{{ habit.description }}</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-{{ habit.color }}-100 text-{{ habit.color }}-800">
+                    {{ habit.category }}
+                </span>
+                <button 
+                    @click="toggleHabit({{ habit.id }})" 
+                    class="p-2 rounded-full focus:outline-none transition-colors duration-200"
+                    :class="completed.includes({{ habit.id }}) ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'"
+                >
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                </button>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+    
+    <!-- Empty State -->
+    {% if not habits %}
+    <div class="text-center py-12">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <path vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">No habits yet</h3>
+        <p class="mt-1 text-sm text-gray-500">Get started by creating a new habit.</p>
+    </div>
+    {% endif %}
+
+    <!-- Add Habit Modal -->
+    <div x-show="showAddModal" x-cloak class="fixed inset-0 z-10 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div x-show="showAddModal" class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" @click="showAddModal = false"></div>
+
+            <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <form action="{{ url_for('habits.add_habit') }}" method="POST">
+                    <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                        <div class="sm:flex sm:items-start">
+                            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white" id="modal-title">
+                                    Add New Habit
+                                </h3>
+                                <div class="mt-4 space-y-4">
+                                    <div>
+                                        <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
+                                        <input type="text" name="name" id="name" required class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                    </div>
+                                    <div>
+                                        <label for="category" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Category</label>
+                                        <select name="category" id="category" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                            <option value="health">Health</option>
+                                            <option value="productivity">Productivity</option>
+                                            <option value="learning">Learning</option>
+                                            <option value="fitness">Fitness</option>
+                                            <option value="personal">Personal</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label for="color" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Color Tag</label>
+                                        <select name="color" id="color" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                            <option value="red">Red</option>
+                                            <option value="blue">Blue</option>
+                                            <option value="green">Green</option>
+                                            <option value="yellow">Yellow</option>
+                                            <option value="purple">Purple</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                        <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm">
+                            Add Habit
+                        </button>
+                        <button type="button" @click="showAddModal = false" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function dashboard() {
+        return {
+            showAddModal: false,
+            completed: {{ completed_ids | tojson }},
+            totalHabits: {{ habits | length }},
+            
+            get progress() {
+                if (this.totalHabits === 0) return 0;
+                return Math.round((this.completed.length / this.totalHabits) * 100);
+            },
+            
+            toggleHabit(id) {
+                fetch(`/habits/${id}/toggle`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ date: '{{ today }}' })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'checked') {
+                        this.completed.push(id);
+                    } else {
+                        this.completed = this.completed.filter(h => h !== id);
+                    }
+                });
+            },
+            
+            initSortable() {
+                var el = document.getElementById('habit-list');
+                if (el) {
+                    Sortable.create(el, {
+                        animation: 150,
+                        handle: '.cursor-move',
+                        onEnd: function (evt) {
+                            var order = [];
+                            el.querySelectorAll('li').forEach(function (li) {
+                                order.push(li.getAttribute('data-id'));
+                            });
+                            
+                            fetch('/habits/reorder', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({ order: order })
+                            });
+                        }
+                    });
+                }
+            }
+        }
+    }
+</script>
+{% endblock %}
