@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Habit Tracker</title>
     <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com" nonce="{{ g.csp_nonce }}"></script>
     <script nonce="{{ g.csp_nonce }}">
         tailwind.config = {
             darkMode: 'class',
@@ -20,13 +20,13 @@
         }
     </script>
     <!-- Alpine.js -->
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" nonce="{{ g.csp_nonce }}"></script>
     <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" nonce="{{ g.csp_nonce }}"></script>
     <!-- SortableJS -->
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js" nonce="{{ g.csp_nonce }}"></script>
     
-    <style>
+    <style nonce="{{ g.csp_nonce }}">
         [x-cloak] { display: none !important; }
     </style>
 </head>
