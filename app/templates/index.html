@@ -3,38 +3,24 @@
 {% block content %}
 <!-- Hero Section -->
 <div class="relative bg-gradient-to-r from-indigo-50 via-white to-indigo-50 -mt-6">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center min-h-screen lg:min-h-[70vh] py-12 sm:py-16 lg:py-20">
-            <!-- Left Column: Text -->
-            <div class="flex flex-col justify-center max-w-xl mx-auto lg:mx-0 w-full">
-                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 leading-tight">
-                    <span class="block">Track, improve, and</span>
-                    <span class="block text-indigo-500">never break your streak</span>
-                </h1>
-                <p class="mt-4 sm:mt-6 text-lg sm:text-xl text-gray-600 leading-relaxed">
-                    Track your daily routines, analyze your progress, and achieve your goals with our simple, effective habit tracker. Join thousands of users improving their lives.
-                </p>
-                <div class="mt-8 sm:mt-10 flex flex-col sm:flex-row gap-4">
-                    <a href="{{ url_for('auth.register') }}" class="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-indigo-500 hover:bg-indigo-600 transition">
-                        Get started
-                    </a>
-                    <a href="{{ url_for('auth.login') }}" class="inline-flex items-center justify-center px-8 py-3 border border-gray-300 text-base font-medium rounded-lg text-indigo-700 bg-white hover:bg-gray-50 transition">
-                        Log in
-                    </a>
-                </div>
-                <!-- Social Proof -->
-                <div class="mt-8 flex items-center gap-2">
-                    <span class="text-xl">⭐⭐⭐⭐⭐</span>
-                    <p class="text-sm text-gray-600 font-medium">1,000+ users building streaks</p>
-                </div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+        <div class="max-w-4xl mx-auto bg-white/80 dark:bg-gray-800/80 border border-indigo-100 dark:border-indigo-900 rounded-2xl shadow-lg p-8 sm:p-12">
+            <div class="flex items-center gap-3 mb-4">
+                <svg class="w-5 h-5 text-indigo-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">HabitTracker</h1>
             </div>
-            <!-- Right Column: Image -->
-            <div class="hidden lg:flex justify-center lg:justify-end">
-                <div class="w-full max-w-lg">
-                    <img class="w-full h-auto rounded-2xl shadow-2xl ring-1 ring-black ring-opacity-5" 
-                        src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80" 
-                        alt="Habit Tracker Dashboard Analysis">
-                </div>
+            <p class="text-gray-700 dark:text-gray-300 text-lg sm:text-xl">
+                Build and maintain habits with a simple, focused tracker. Quick setup, responsive dashboard, and progress analytics for every day.
+            </p>
+            <div class="mt-8 flex flex-col sm:flex-row gap-3">
+                <a href="{{ url_for('auth.register') }}" class="inline-flex items-center justify-center px-6 py-2 rounded-lg bg-indigo-500 text-white text-sm font-medium hover:bg-indigo-600 transition">
+                    Start for free
+                </a>
+                <a href="{{ url_for('auth.login') }}" class="inline-flex items-center justify-center px-6 py-2 rounded-lg border border-gray-300 bg-white text-indigo-700 text-sm font-medium hover:bg-gray-50 transition">
+                    Log in
+                </a>
             </div>
         </div>
     </div>
