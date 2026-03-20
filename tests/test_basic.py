@@ -1,7 +1,7 @@
 import unittest
 import os
 from app import create_app, db
-from app.models import User, Habit, Reminder
+from app.models import User, Habit, Reminder, Category
 from config import Config
 
 class TestConfig(Config):
@@ -40,6 +40,32 @@ class BasicTestCase(unittest.TestCase):
         
         self.assertEqual(h.author, u)
         self.assertEqual(u.habits.count(), 1)
+
+    def test_category_management_flow(self):
+        u = User(username='categoryuser', email='category@example.com')
+        u.set_password('CategoryPass123!')
+        db.session.add(u)
+        db.session.commit()
+
+        with self.client:
+            self.client.post('/login', data={'email': u.email, 'password': 'CategoryPass123!'})
+            response = self.client.post('/habits/categories/add', data={'name': 'Work'}, follow_redirects=True)
+            self.assertEqual(response.status_code, 200)
+            self.assertIn(b'Work', response.data)
+
+            cat = Category.query.filter_by(user_id=u.id, name='Work').first()
+            self.assertIsNotNone(cat)
+
+            # Create habit under the category
+            response = self.client.post('/habits/add', data={'name': 'Finish report', 'category': 'Work', 'color': 'blue'}, follow_redirects=True)
+            self.assertEqual(response.status_code, 200)
+            self.assertIn(b'Finish report', response.data)
+
+            # Delete category should reassign habits to personal
+            delete_response = self.client.post(f'/habits/categories/{cat.id}/delete', follow_redirects=True)
+            self.assertEqual(delete_response.status_code, 200)
+            updated_habit = Habit.query.filter_by(name='Finish report').first()
+            self.assertEqual(updated_habit.category, 'personal')
 
     def test_reminders_basic_flow(self):
         # Create and login user

@@ -35,8 +35,33 @@
         </div>
     </div>
 
-    <!-- Reminders Panel -->
+    <!-- Categories & Reminders Panel -->
     <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Categories</h3>
+            <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-md text-sm" onclick="document.getElementById('category-form').classList.toggle('hidden')">+ Add Category</button>
+        </div>
+        <form id="category-form" action="{{ url_for('habits.add_category') }}" method="POST" class="mb-4 hidden">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <input type="text" name="name" required placeholder="Category name" class="border border-gray-300 rounded-md px-2 py-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white rounded-md px-3">Save</button>
+            </div>
+        </form>
+        <div class="space-y-2 mb-6">
+            {% if categories %}
+                {% for cat in categories %}
+                <div class="flex justify-between items-center border border-gray-100 dark:border-gray-700 p-2 rounded">
+                    <span class="text-sm text-gray-700 dark:text-gray-200">{{ cat.name }}</span>
+                    <form action="{{ url_for('habits.delete_category', id=cat.id) }}" method="POST">
+                        <button type="submit" class="text-xs text-red-600 dark:text-red-400">Delete</button>
+                    </form>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-sm text-gray-500 dark:text-gray-400">No categories yet.</div>
+            {% endif %}
+        </div>
+
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Reminders</h3>
             <button @click="showReminderModal = true" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-md text-sm">+ Add Reminder</button>
@@ -130,12 +155,17 @@
                                     <div>
                                         <label for="category" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Category</label>
                                         <select name="category" id="category" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                            <option value="">Select existing category</option>
                                             <option value="health">Health</option>
                                             <option value="productivity">Productivity</option>
                                             <option value="learning">Learning</option>
                                             <option value="fitness">Fitness</option>
                                             <option value="personal">Personal</option>
+                                            {% for cat in categories %}
+                                            <option value="{{ cat.name }}">{{ cat.name }}</option>
+                                            {% endfor %}
                                         </select>
+                                        <input type="text" name="custom_category" id="custom_category" placeholder="Or create new category" class="mt-2 block w-full border border-gray-300 rounded-md p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                                     </div>
                                     <div>
                                         <label for="color" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Color Tag</label>

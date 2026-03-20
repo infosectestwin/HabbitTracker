@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template
 from flask_login import login_required, current_user
-from app.models import Habit, HabitLog, Reminder
+from app.models import Habit, HabitLog, Reminder, Category
 from app.utils import get_today_central
 
 main_bp = Blueprint('main', __name__)
@@ -24,10 +24,14 @@ def dashboard():
     # Reminders for the current user
     reminders = Reminder.query.filter_by(user_id=current_user.id).order_by(Reminder.due_date.asc(), Reminder.created_at.desc()).all()
 
+    # Categories for the current user
+    categories = Category.query.filter_by(user_id=current_user.id).order_by(Category.name.asc()).all()
+
     return render_template(
         'dashboard/index.html',
         habits=habits,
         completed_ids=completed_ids,
         today=today,
-        reminders=reminders
+        reminders=reminders,
+        categories=categories
     )

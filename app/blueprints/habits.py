@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify, redirect, url_for, flash
 from flask_login import login_required, current_user
 from app import db
-from app.models import Habit, HabitLog, Reminder
+from app.models import Habit, HabitLog, Reminder, Category
 from datetime import datetime
 from app.utils import get_today_central, get_now_central
 import re
@@ -13,26 +13,37 @@ habits_bp = Blueprint('habits', __name__, url_prefix='/habits')
 def add_habit():
     name = request.form.get('name', '').strip()
     category = request.form.get('category', '').strip()
+    custom_category = request.form.get('custom_category', '').strip()
     color = request.form.get('color', '').strip()
-    
+
     # Input validation
     errors = []
     if not name or len(name) > 100:
         errors.append('Habit name is required and must be less than 100 characters')
     if category and len(category) > 50:
         errors.append('Category must be less than 50 characters')
+    if custom_category and len(custom_category) > 50:
+        errors.append('Custom category must be less than 50 characters')
     if color and len(color) > 20:
         errors.append('Color must be less than 20 characters')
-    
+
     # Validate color format (basic check for CSS color names/classes)
     if color and not re.match(r'^[a-zA-Z0-9_-]+$', color):
         errors.append('Invalid color format')
-    
+
     if errors:
         flash('; '.join(errors))
         return redirect(url_for('main.dashboard'))
-    
-    habit = Habit(name=name, category=category or 'personal', color=color or 'blue-500', author=current_user)
+
+    category_value = custom_category or category or 'personal'
+
+    if custom_category:
+        existing_cat = Category.query.filter_by(user_id=current_user.id, name=custom_category).first()
+        if not existing_cat:
+            new_cat = Category(user_id=current_user.id, name=custom_category)
+            db.session.add(new_cat)
+
+    habit = Habit(name=name, category=category_value, color=color or 'blue-500', author=current_user)
     db.session.add(habit)
     db.session.commit()
     return redirect(url_for('main.dashboard'))
@@ -101,6 +112,38 @@ def archive_habit(id):
     if habit.author == current_user:
         habit.is_archived = True
         db.session.commit()
+    return redirect(url_for('main.dashboard'))
+
+
+@habits_bp.route('/categories/add', methods=['POST'])
+@login_required
+def add_category():
+    name = request.form.get('name', '').strip()
+    if not name or len(name) > 50:
+        flash('Category name is required and must be 1-50 characters')
+        return redirect(url_for('main.dashboard'))
+
+    if Category.query.filter_by(user_id=current_user.id, name=name).first():
+        flash('Category already exists')
+        return redirect(url_for('main.dashboard'))
+
+    category = Category(user_id=current_user.id, name=name)
+    db.session.add(category)
+    db.session.commit()
+    return redirect(url_for('main.dashboard'))
+
+
+@habits_bp.route('/categories/<int:id>/delete', methods=['POST'])
+@login_required
+def delete_category(id):
+    category = Category.query.get_or_404(id)
+    if category.user_id != current_user.id:
+        return jsonify({'error': 'Unauthorized'}), 403
+
+    # Remove category from habits where used
+    Habit.query.filter_by(category=category.name, user_id=current_user.id).update({'category': 'personal'})
+    db.session.delete(category)
+    db.session.commit()
     return redirect(url_for('main.dashboard'))
 
 
