@@ -9,10 +9,10 @@
         <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Categories</h3>
-                <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-md text-sm" onclick="document.getElementById('category-form').classList.toggle('hidden')">+ Add Category</button>
+                <button @click="showCategoryForm = !showCategoryForm" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-md text-sm">+ Add Category</button>
             </div>
             
-            <form id="category-form" action="{{ url_for('habits.add_category') }}" method="POST" class="mb-4 hidden">
+            <form x-show="showCategoryForm" x-cloak id="category-form" action="{{ url_for('habits.add_category') }}" method="POST" class="mb-4">
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <input type="text" name="name" required placeholder="Category name" class="border border-gray-300 rounded-md px-4 py-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none" />
                     <button type="submit" class="bg-green-600 hover:bg-green-700 text-white rounded-md px-4 py-2 font-medium">Save</button>
@@ -116,6 +116,7 @@
     function settings() {
         return {
             showReminderModal: false,
+            showCategoryForm: false,
             toggleReminder(id) {
                 fetch(`/habits/reminders/${id}/toggle`, {
                     method: 'POST',
