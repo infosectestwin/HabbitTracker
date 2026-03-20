@@ -1,7 +1,7 @@
 import unittest
 import os
 from app import create_app, db
-from app.models import User, Habit
+from app.models import User, Habit, Reminder
 from config import Config
 
 class TestConfig(Config):
@@ -40,6 +40,28 @@ class BasicTestCase(unittest.TestCase):
         
         self.assertEqual(h.author, u)
         self.assertEqual(u.habits.count(), 1)
+
+    def test_reminders_basic_flow(self):
+        # Create and login user
+        u = User(username='reminderuser', email='reminder@example.com')
+        u.set_password('reminderPass1!')
+        db.session.add(u)
+        db.session.commit()
+
+        with self.client:
+            self.client.post('/login', data={'email': u.email, 'password': 'reminderPass1!'})
+            response = self.client.post('/habits/reminders/add', data={'title': 'Test Reminder', 'description': 'Do this', 'due_date': '2030-01-01'}, follow_redirects=True)
+            self.assertEqual(response.status_code, 200)
+            self.assertIn(b'Test Reminder', response.data)
+
+            # Toggle reminder done state
+            reminder = Reminder.query.filter_by(user_id=u.id).first()
+            self.assertIsNotNone(reminder)
+            self.assertFalse(reminder.is_done)
+            toggle_response = self.client.post(f'/habits/reminders/{reminder.id}/toggle')
+            self.assertEqual(toggle_response.status_code, 200)
+            reminder = Reminder.query.get(reminder.id)
+            self.assertTrue(reminder.is_done)
 
     def test_security_headers_present(self):
         """Test that security headers are present on the main route."""

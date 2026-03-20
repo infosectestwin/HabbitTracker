@@ -1,7 +1,7 @@
-from flask import Blueprint, request, jsonify, redirect, url_for
+from flask import Blueprint, request, jsonify, redirect, url_for, flash
 from flask_login import login_required, current_user
 from app import db
-from app.models import Habit, HabitLog
+from app.models import Habit, HabitLog, Reminder
 from datetime import datetime
 from app.utils import get_today_central, get_now_central
 import re
@@ -101,4 +101,53 @@ def archive_habit(id):
     if habit.author == current_user:
         habit.is_archived = True
         db.session.commit()
+    return redirect(url_for('main.dashboard'))
+
+
+@habits_bp.route('/reminders/add', methods=['POST'])
+@login_required
+def add_reminder():
+    title = request.form.get('title', '').strip()
+    description = request.form.get('description', '').strip()
+    due_date_str = request.form.get('due_date', '').strip()
+
+    if not title or len(title) > 120:
+        flash('Reminder title is required and must be <= 120 chars')
+        return redirect(url_for('main.dashboard'))
+
+    due_date = None
+    if due_date_str:
+        try:
+            due_date = datetime.strptime(due_date_str, '%Y-%m-%d').date()
+        except ValueError:
+            flash('Invalid due date format, use YYYY-MM-DD')
+            return redirect(url_for('main.dashboard'))
+
+    reminder = Reminder(user_id=current_user.id, title=title, description=description, due_date=due_date)
+    db.session.add(reminder)
+    db.session.commit()
+    return redirect(url_for('main.dashboard'))
+
+
+@habits_bp.route('/reminders/<int:id>/toggle', methods=['POST'])
+@login_required
+def toggle_reminder(id):
+    reminder = Reminder.query.get_or_404(id)
+    if reminder.user_id != current_user.id:
+        return jsonify({'error': 'Unauthorized'}), 403
+
+    reminder.is_done = not reminder.is_done
+    db.session.commit()
+    return jsonify({'status': 'success', 'is_done': reminder.is_done})
+
+
+@habits_bp.route('/reminders/<int:id>/delete', methods=['POST'])
+@login_required
+def delete_reminder(id):
+    reminder = Reminder.query.get_or_404(id)
+    if reminder.user_id != current_user.id:
+        return jsonify({'error': 'Unauthorized'}), 403
+
+    db.session.delete(reminder)
+    db.session.commit()
     return redirect(url_for('main.dashboard'))

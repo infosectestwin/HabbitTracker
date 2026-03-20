@@ -49,3 +49,15 @@ class HabitLog(db.Model):
     completed_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     __table_args__ = (db.UniqueConstraint('habit_id', 'date', name='_habit_date_uc'),)
+
+
+class Reminder(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    title = db.Column(db.String(120), nullable=False)
+    description = db.Column(db.String(255))
+    due_date = db.Column(db.Date, nullable=True)
+    is_done = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user = db.relationship('User', backref='reminders')

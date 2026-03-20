@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template
 from flask_login import login_required, current_user
-from app.models import Habit, HabitLog
+from app.models import Habit, HabitLog, Reminder
 from app.utils import get_today_central
 
 main_bp = Blueprint('main', __name__)
@@ -18,9 +18,16 @@ def index():
 @login_required
 def dashboard():
     today = get_today_central()
-    # Logic to fetch habits and status for today
     habits = current_user.habits.filter_by(is_archived=False).order_by(Habit.position).all()
-    # We need to pass which habits are completed today
     completed_ids = [log.habit_id for log in HabitLog.query.filter_by(date=today).all()]
-    
-    return render_template('dashboard/index.html', habits=habits, completed_ids=completed_ids, today=today)
+
+    # Reminders for the current user
+    reminders = Reminder.query.filter_by(user_id=current_user.id).order_by(Reminder.due_date.asc(), Reminder.created_at.desc()).all()
+
+    return render_template(
+        'dashboard/index.html',
+        habits=habits,
+        completed_ids=completed_ids,
+        today=today,
+        reminders=reminders
+    )
