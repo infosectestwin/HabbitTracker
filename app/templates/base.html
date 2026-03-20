@@ -37,8 +37,8 @@
             <div class="flex justify-between h-16">
                 <div class="flex">
                     <div class="flex-shrink-0 flex items-center">
-                        <a id="site-logo" href="{{ url_for('main.index') }}" aria-label="HabitTracker Home" class="flex items-center space-x-2 font-semibold text-sm text-gray-700 dark:text-gray-200 hover:text-indigo-600 transition-colors">
-                            <svg class="w-4 h-4 min-w-[16px] min-h-[16px] text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <a id="site-logo" href="{{ url_for('main.index') }}" aria-label="HabitTracker Home" class="flex items-center space-x-2 font-semibold text-sm text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white transition-colors">
+                            <svg class="w-4 h-4 min-w-[16px] min-h-[16px] text-gray-500 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
                             <span class="text-gray-700 dark:text-gray-200 text-xs leading-tight">HabitTracker</span>
@@ -47,11 +47,11 @@
                     <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
                         {% if current_user.is_authenticated %}
                             <a href="{{ url_for('main.dashboard') }}" 
-                               class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium {% if request.endpoint in ['main.dashboard', 'main.index'] %} border-indigo-500 text-gray-900 dark:text-white {% else %} border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 hover:text-gray-700 dark:hover:text-white {% endif %}">
+                               class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium {% if request.endpoint in ['main.dashboard', 'main.index'] %} border-gray-700 text-gray-900 dark:text-white {% else %} border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 hover:text-gray-700 dark:hover:text-white {% endif %}">
                                 Dashboard
                             </a>
                             <a href="{{ url_for('stats.index') }}" 
-                               class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium {% if request.endpoint == 'stats.index' %} border-indigo-500 text-gray-900 dark:text-white {% else %} border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 hover:text-gray-700 dark:hover:text-white {% endif %}">
+                               class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium {% if request.endpoint == 'stats.index' %} border-gray-700 text-gray-900 dark:text-white {% else %} border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 hover:text-gray-700 dark:hover:text-white {% endif %}">
                                 Stats
                             </a>
                         {% else %}
