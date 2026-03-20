@@ -30,6 +30,11 @@ def create_app(config_class=Config):
         import secrets
         g.csp_nonce = secrets.token_hex(16)
 
+    @app.context_processor
+    def inject_nonce():
+        """Inject the CSP nonce into all templates."""
+        return dict(csp_nonce=getattr(g, 'csp_nonce', ''))
+
     # Security headers middleware
     @app.after_request
     def add_security_headers(response):
@@ -37,13 +42,14 @@ def create_app(config_class=Config):
         Add secure default HTTP headers to all responses.
         """
         # Content Security Policy - restrictive but functional
-        # Use the nonce generated in before_request
         nonce = getattr(g, 'csp_nonce', '')
         
+        # Note: Tailwind CDN requires 'unsafe-inline' for style-src because it 
+        # injects styles dynamically which cannot be easily nonced.
         response.headers['Content-Security-Policy'] = (
             f"default-src 'self'; "
             f"script-src 'self' 'nonce-{nonce}' https://unpkg.com https://cdn.tailwindcss.com https://cdn.jsdelivr.net; "
-            f"style-src 'self' 'nonce-{nonce}' https://fonts.googleapis.com; "
+            f"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
             f"img-src 'self' data: https:; "
             f"font-src 'self' https://fonts.gstatic.com; "
             f"connect-src 'self'; "
