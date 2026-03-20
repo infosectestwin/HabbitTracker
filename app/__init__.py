@@ -44,11 +44,11 @@ def create_app(config_class=Config):
         # Content Security Policy - restrictive but functional
         nonce = getattr(g, 'csp_nonce', '')
         
-        # Note: Tailwind CDN requires 'unsafe-inline' for style-src because it 
-        # injects styles dynamically which cannot be easily nonced.
+        # Note: Tailwind CDN requires 'unsafe-inline' for style-src.
+        # Note: Alpine.js requires 'unsafe-eval' for script-src to evaluate expressions.
         response.headers['Content-Security-Policy'] = (
             f"default-src 'self'; "
-            f"script-src 'self' 'nonce-{nonce}' https://unpkg.com https://cdn.tailwindcss.com https://cdn.jsdelivr.net; "
+            f"script-src 'self' 'nonce-{nonce}' 'unsafe-eval' https://unpkg.com https://cdn.tailwindcss.com https://cdn.jsdelivr.net; "
             f"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
             f"img-src 'self' data: https:; "
             f"font-src 'self' https://fonts.gstatic.com; "
