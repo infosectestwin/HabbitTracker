@@ -24,27 +24,22 @@ def create_app(config_class=Config):
     setup_logging(app)
     setup_request_logging(app)
 
+    @app.before_request
+    def generate_nonce():
+        """Generate a cryptographically secure nonce for CSP."""
+        import secrets
+        g.csp_nonce = secrets.token_hex(16)
+
     # Security headers middleware
     @app.after_request
     def add_security_headers(response):
         """
         Add secure default HTTP headers to all responses.
-        
-        Headers included:
-        - Content-Security-Policy: Restrictive policy for security
-        - X-Content-Type-Options: Prevents MIME type sniffing
-        - X-Frame-Options: Prevents clickjacking attacks
-        - Referrer-Policy: Controls referrer information sent in requests
-        - Strict-Transport-Security: Enforces HTTPS (only when request is HTTPS)
         """
-        # Generate a nonce for inline scripts/styles
-        import secrets
-        nonce = secrets.token_hex(16)
-        
-        # Store nonce in request context for templates
-        g.csp_nonce = nonce
-        
         # Content Security Policy - restrictive but functional
+        # Use the nonce generated in before_request
+        nonce = getattr(g, 'csp_nonce', '')
+        
         response.headers['Content-Security-Policy'] = (
             f"default-src 'self'; "
             f"script-src 'self' 'nonce-{nonce}' https://unpkg.com https://cdn.tailwindcss.com https://cdn.jsdelivr.net; "
