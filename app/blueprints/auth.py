@@ -51,6 +51,10 @@ def register():
             flash('Username already exists')
             return redirect(url_for('auth.register'))
 
+        if User.query.filter_by(email=email).first():
+            flash('Email address already registered')
+            return redirect(url_for('auth.register'))
+
         # Password strength check
         is_strong, message = is_password_strong(password)
         if not is_strong:
