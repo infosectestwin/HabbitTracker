@@ -32,7 +32,7 @@
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 transition-colors duration-200">
     
-    <nav class="bg-white dark:bg-gray-800 shadow-md">
+    <nav class="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex">
@@ -44,18 +44,28 @@
                             <span class="text-indigo-600">HabitTracker</span>
                         </a>
                     </div>
-                    {% if current_user.is_authenticated %}
                     <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
-                        <a href="{{ url_for('main.dashboard') }}" 
-                           class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium {% if request.endpoint in ['main.dashboard', 'main.index'] %} border-indigo-500 text-gray-900 dark:text-white {% else %} border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 hover:text-gray-700 dark:hover:text-white {% endif %}">
-                            Dashboard
-                        </a>
-                        <a href="{{ url_for('stats.index') }}" 
-                           class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium {% if request.endpoint == 'stats.index' %} border-indigo-500 text-gray-900 dark:text-white {% else %} border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 hover:text-gray-700 dark:hover:text-white {% endif %}">
-                            Stats
-                        </a>
+                        {% if current_user.is_authenticated %}
+                            <a href="{{ url_for('main.dashboard') }}" 
+                               class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium {% if request.endpoint in ['main.dashboard', 'main.index'] %} border-indigo-500 text-gray-900 dark:text-white {% else %} border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 hover:text-gray-700 dark:hover:text-white {% endif %}">
+                                Dashboard
+                            </a>
+                            <a href="{{ url_for('stats.index') }}" 
+                               class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium {% if request.endpoint == 'stats.index' %} border-indigo-500 text-gray-900 dark:text-white {% else %} border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 hover:text-gray-700 dark:hover:text-white {% endif %}">
+                                Stats
+                            </a>
+                        {% else %}
+                            <a href="#features" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 dark:text-gray-300 hover:border-gray-300 hover:text-gray-700 dark:hover:text-white">
+                                Features
+                            </a>
+                            <a href="#pricing" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 dark:text-gray-300 hover:border-gray-300 hover:text-gray-700 dark:hover:text-white">
+                                Pricing
+                            </a>
+                            <a href="#about" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 dark:text-gray-300 hover:border-gray-300 hover:text-gray-700 dark:hover:text-white">
+                                About
+                            </a>
+                        {% endif %}
                     </div>
-                    {% endif %}
                 </div>
                 <div class="flex items-center space-x-4">
                     <!-- Dark Mode Toggle -->
