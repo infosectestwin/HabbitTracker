@@ -36,6 +36,10 @@ MANIFEST
 pip-log.txt
 pip-delete-this-directory.txt
 
+# Cookies and session files
+cookies.txt
+*.cookie
+
 # Unit test / coverage reports
 htmlcov/
 .tox/

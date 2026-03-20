@@ -8,7 +8,9 @@ with app.app_context():
     db.create_all()
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Never run debug=True in production - use environment variable
+    debug_mode = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
+    app.run(debug=debug_mode)
 else:
     # Production settings for PythonAnywhere
     app.config['DEBUG'] = False

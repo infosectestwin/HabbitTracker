@@ -55,7 +55,10 @@
             
             renderHeatmap(logs) {
                 const container = document.getElementById('heatmap-container');
-                container.innerHTML = '';
+                // Clear container safely
+                while (container.firstChild) {
+                    container.removeChild(container.firstChild);
+                }
                 
                 const allLogs = {};
                 logs.forEach(date => {
@@ -66,7 +69,6 @@
                 const yearAgo = new Date();
                 yearAgo.setDate(today.getDate() - 365);
                 
-                let weeks = [];
                 let currentWeek = [];
                 
                 for (let d = new Date(yearAgo); d <= today; d.setDate(d.getDate() + 1)) {
@@ -79,15 +81,20 @@
                     if (count > 4) colorClass = 'bg-indigo-600';
                     if (count > 6) colorClass = 'bg-indigo-800';
                     
-                    currentWeek.push(`<div class="w-3 h-3 ${colorClass} rounded-sm" title="${dateStr}: ${count}"></div>`);
+                    // Create safe DOM element
+                    const dayElement = document.createElement('div');
+                    dayElement.className = `w-3 h-3 ${colorClass} rounded-sm`;
+                    dayElement.title = `${dateStr}: ${count}`;
+                    currentWeek.push(dayElement);
                     
                     if (d.getDay() === 6 || d.getTime() === today.getTime()) {
-                        weeks.push(`<div class="flex flex-col space-y-1">${currentWeek.join('')}</div>`);
+                        const weekElement = document.createElement('div');
+                        weekElement.className = 'flex flex-col space-y-1';
+                        currentWeek.forEach(day => weekElement.appendChild(day));
+                        container.appendChild(weekElement);
                         currentWeek = [];
                     }
                 }
-                
-                container.innerHTML = weeks.join('');
             },
             
             renderCharts(data) {
