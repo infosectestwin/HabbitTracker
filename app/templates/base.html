@@ -32,6 +32,7 @@
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 transition-colors duration-200">
     
+    {% if request.endpoint != 'auth.register' %}
     <nav class="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
@@ -54,7 +55,11 @@
                                class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium {% if request.endpoint == 'stats.index' %} border-gray-700 text-gray-900 dark:text-white {% else %} border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 hover:text-gray-700 dark:hover:text-white {% endif %}">
                                 Stats
                             </a>
-                        {% else %}
+                            <a href="{{ url_for('main.settings') }}" 
+                               class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium {% if request.endpoint == 'main.settings' %} border-gray-700 text-gray-900 dark:text-white {% else %} border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 hover:text-gray-700 dark:hover:text-white {% endif %}">
+                                Settings
+                            </a>
+{% else %}
                             <a href="#features" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 dark:text-gray-300 hover:border-gray-300 hover:text-gray-700 dark:hover:text-white">
                                 Features
                             </a>
@@ -85,6 +90,7 @@
             </div>
         </div>
     </nav>
+    {% endif %}
 
     <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         {% with messages = get_flashed_messages() %}

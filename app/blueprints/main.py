@@ -21,10 +21,7 @@ def dashboard():
     habits = current_user.habits.filter_by(is_archived=False).order_by(Habit.position).all()
     completed_ids = [log.habit_id for log in HabitLog.query.filter_by(date=today).all()]
 
-    # Reminders for the current user
-    reminders = Reminder.query.filter_by(user_id=current_user.id).order_by(Reminder.due_date.asc(), Reminder.created_at.desc()).all()
-
-    # Categories for the current user
+    # Categories for the current user (needed for the Add Habit modal)
     categories = Category.query.filter_by(user_id=current_user.id).order_by(Category.name.asc()).all()
 
     return render_template(
@@ -32,6 +29,20 @@ def dashboard():
         habits=habits,
         completed_ids=completed_ids,
         today=today,
+        categories=categories
+    )
+
+@main_bp.route('/settings')
+@login_required
+def settings():
+    # Reminders for the current user
+    reminders = Reminder.query.filter_by(user_id=current_user.id).order_by(Reminder.due_date.asc(), Reminder.created_at.desc()).all()
+
+    # Categories for the current user
+    categories = Category.query.filter_by(user_id=current_user.id).order_by(Category.name.asc()).all()
+
+    return render_template(
+        'settings/index.html',
         reminders=reminders,
         categories=categories
     )

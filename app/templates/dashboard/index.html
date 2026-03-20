@@ -35,62 +35,6 @@
         </div>
     </div>
 
-    <!-- Categories & Reminders Panel -->
-    <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Categories</h3>
-            <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-md text-sm" onclick="document.getElementById('category-form').classList.toggle('hidden')">+ Add Category</button>
-        </div>
-        <form id="category-form" action="{{ url_for('habits.add_category') }}" method="POST" class="mb-4 hidden">
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <input type="text" name="name" required placeholder="Category name" class="border border-gray-300 rounded-md px-2 py-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
-                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white rounded-md px-3">Save</button>
-            </div>
-        </form>
-        <div class="space-y-2 mb-6">
-            {% if categories %}
-                {% for cat in categories %}
-                <div class="flex justify-between items-center border border-gray-100 dark:border-gray-700 p-2 rounded">
-                    <span class="text-sm text-gray-700 dark:text-gray-200">{{ cat.name }}</span>
-                    <form action="{{ url_for('habits.delete_category', id=cat.id) }}" method="POST">
-                        <button type="submit" class="text-xs text-red-600 dark:text-red-400">Delete</button>
-                    </form>
-                </div>
-                {% endfor %}
-            {% else %}
-                <div class="text-sm text-gray-500 dark:text-gray-400">No categories yet.</div>
-            {% endif %}
-        </div>
-
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Reminders</h3>
-            <button @click="showReminderModal = true" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-md text-sm">+ Add Reminder</button>
-        </div>
-        {% if reminders %}
-        <ul class="space-y-3">
-            {% for reminder in reminders %}
-            <li class="border border-gray-200 dark:border-gray-700 rounded-lg p-3 flex justify-between items-center">
-                <div>
-                    <h4 class="font-medium text-gray-900 dark:text-gray-100 {% if reminder.is_done %}line-through text-gray-400{% endif %}">{{ reminder.title }}</h4>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">{{ reminder.description or 'No description' }}</p>
-                    {% if reminder.due_date %}
-                    <p class="text-xs text-gray-400">Due: {{ reminder.due_date.strftime('%Y-%m-%d') }}</p>
-                    {% endif %}
-                </div>
-                <div class="flex items-center gap-2">
-                    <button @click="toggleReminder({{ reminder.id }})" class="text-xs px-2 py-1 rounded bg-gray-100 dark:bg-gray-700">{{ 'Undo' if reminder.is_done else 'Done' }}</button>
-                    <form action="{{ url_for('habits.delete_reminder', id=reminder.id) }}" method="POST" class="inline">
-                        <button type="submit" class="text-xs px-2 py-1 rounded bg-red-100 dark:bg-red-700">Delete</button>
-                    </form>
-                </div>
-            </li>
-            {% endfor %}
-        </ul>
-        {% else %}
-        <p class="text-sm text-gray-500 dark:text-gray-400">No reminders yet. Add one to stay on track.</p>
-        {% endif %}
-    </div>
-
     <!-- Habits List -->
     <ul id="habit-list" class="space-y-3">
         {% for habit in habits %}
@@ -194,49 +138,12 @@
         </div>
     </div>
 
-    <!-- Add Reminder Modal -->
-    <div x-show="showReminderModal" x-cloak class="fixed inset-0 z-10 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div x-show="showReminderModal" class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" @click="showReminderModal = false"></div>
-            <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-                <form action="{{ url_for('habits.add_reminder') }}" method="POST">
-                    <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                        <div class="sm:flex sm:items-start">
-                            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white" id="modal-title">Add New Reminder</h3>
-                                <div class="mt-4 space-y-4">
-                                    <div>
-                                        <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Title</label>
-                                        <input type="text" name="title" id="title" required class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                                    </div>
-                                    <div>
-                                        <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
-                                        <textarea name="description" id="description" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"></textarea>
-                                    </div>
-                                    <div>
-                                        <label for="due_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Due Date</label>
-                                        <input type="date" name="due_date" id="due_date" class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                        <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm">Add Reminder</button>
-                        <button type="button" @click="showReminderModal = false" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">Cancel</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
 </div>
 
 <script>
     function dashboard() {
         return {
             showAddModal: false,
-            showReminderModal: false,
             completed: {{ completed_ids | tojson }},
             totalHabits: {{ habits | length }},
             

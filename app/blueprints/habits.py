@@ -121,16 +121,16 @@ def add_category():
     name = request.form.get('name', '').strip()
     if not name or len(name) > 50:
         flash('Category name is required and must be 1-50 characters')
-        return redirect(url_for('main.dashboard'))
+        return redirect(url_for('main.settings'))
 
     if Category.query.filter_by(user_id=current_user.id, name=name).first():
         flash('Category already exists')
-        return redirect(url_for('main.dashboard'))
+        return redirect(url_for('main.settings'))
 
     category = Category(user_id=current_user.id, name=name)
     db.session.add(category)
     db.session.commit()
-    return redirect(url_for('main.dashboard'))
+    return redirect(url_for('main.settings'))
 
 
 @habits_bp.route('/categories/<int:id>/delete', methods=['POST'])
@@ -144,7 +144,7 @@ def delete_category(id):
     Habit.query.filter_by(category=category.name, user_id=current_user.id).update({'category': 'personal'})
     db.session.delete(category)
     db.session.commit()
-    return redirect(url_for('main.dashboard'))
+    return redirect(url_for('main.settings'))
 
 
 @habits_bp.route('/reminders/add', methods=['POST'])
@@ -156,7 +156,7 @@ def add_reminder():
 
     if not title or len(title) > 120:
         flash('Reminder title is required and must be <= 120 chars')
-        return redirect(url_for('main.dashboard'))
+        return redirect(url_for('main.settings'))
 
     due_date = None
     if due_date_str:
@@ -164,12 +164,12 @@ def add_reminder():
             due_date = datetime.strptime(due_date_str, '%Y-%m-%d').date()
         except ValueError:
             flash('Invalid due date format, use YYYY-MM-DD')
-            return redirect(url_for('main.dashboard'))
+            return redirect(url_for('main.settings'))
 
     reminder = Reminder(user_id=current_user.id, title=title, description=description, due_date=due_date)
     db.session.add(reminder)
     db.session.commit()
-    return redirect(url_for('main.dashboard'))
+    return redirect(url_for('main.settings'))
 
 
 @habits_bp.route('/reminders/<int:id>/toggle', methods=['POST'])
@@ -193,4 +193,4 @@ def delete_reminder(id):
 
     db.session.delete(reminder)
     db.session.commit()
-    return redirect(url_for('main.dashboard'))
+    return redirect(url_for('main.settings'))
