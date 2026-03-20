@@ -25,11 +25,12 @@ def login():
         return redirect(url_for('main.index'))
     
     if request.method == 'POST':
-        username = request.form.get('username')
+        email = request.form.get('email')
         password = request.form.get('password')
-        user = User.query.filter_by(username=username).first()
+        # Login using email now
+        user = User.query.filter_by(email=email).first()
         if user is None or not user.check_password(password):
-            flash('Invalid username or password')
+            flash('Invalid email or password')
             return redirect(url_for('auth.login'))
         login_user(user, remember=request.form.get('remember_me'))
         next_page = request.args.get('next')
@@ -43,14 +44,9 @@ def register():
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
     if request.method == 'POST':
-        username = request.form.get('username')
         email = request.form.get('email')
         password = request.form.get('password')
         
-        if User.query.filter_by(username=username).first():
-            flash('Username already exists')
-            return redirect(url_for('auth.register'))
-
         if User.query.filter_by(email=email).first():
             flash('Email address already registered')
             return redirect(url_for('auth.register'))
@@ -61,7 +57,8 @@ def register():
             flash(message)
             return redirect(url_for('auth.register'))
             
-        user = User(username=username, email=email)
+        # Use email as username since we removed it from UI
+        user = User(username=email, email=email)
         user.set_password(password)
         db.session.add(user)
         db.session.commit()
