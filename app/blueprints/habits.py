@@ -147,6 +147,7 @@ def delete_category(id):
     return redirect(url_for('main.settings'))
 
 
+
 @habits_bp.route('/reminders/add', methods=['POST'])
 @login_required
 def add_reminder():
