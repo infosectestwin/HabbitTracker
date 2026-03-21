@@ -1,6 +1,7 @@
 from flask import Flask, request, g
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+from authlib.integrations.flask_client import OAuth
 from config import Config
 import os
 from app.logging_config import setup_logging, setup_request_logging
@@ -9,10 +10,25 @@ db = SQLAlchemy()
 login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
 login_manager.login_message_category = 'info'
+oauth = OAuth()
 
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
+
+    # Initialize extensions
+    db.init_app(app)
+    login_manager.init_app(app)
+    oauth.init_app(app)
+
+    # Register Google OAuth
+    oauth.register(
+        name='google',
+        server_metadata_url=app.config.get('GOOGLE_DISCOVERY_URL'),
+        client_kwargs={
+            'scope': 'openid email profile'
+        }
+    )
 
     # Ensure instance folder exists
     try:
@@ -70,9 +86,6 @@ def create_app(config_class=Config):
             response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
         
         return response
-
-    db.init_app(app)
-    login_manager.init_app(app)
 
     # Import and register blueprints
     from app.blueprints.auth import auth_bp

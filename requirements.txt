@@ -5,3 +5,5 @@ Werkzeug
 email_validator
 python-dotenv
 pytz
+authlib
+requests

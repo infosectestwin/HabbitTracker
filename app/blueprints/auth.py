@@ -1,10 +1,46 @@
 import re
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
-from app import db
+from app import db, oauth
 from app.models import User
 
 auth_bp = Blueprint('auth', __name__)
+
+@auth_bp.route('/login/google')
+def google_login():
+    redirect_uri = url_for('auth.google_authorize', _external=True)
+    return oauth.google.authorize_redirect(redirect_uri)
+
+@auth_bp.route('/login/google/authorize')
+def google_authorize():
+    try:
+        token = oauth.google.authorize_access_token()
+    except Exception as e:
+        flash(f'OAuth error: {str(e)}')
+        return redirect(url_for('auth.login'))
+        
+    user_info = token.get('userinfo')
+    if not user_info:
+        flash('Failed to fetch user information from Google.')
+        return redirect(url_for('auth.login'))
+    
+    email = user_info.get('email')
+    if not user_info.get('email_verified'):
+        flash('Google email not verified.')
+        return redirect(url_for('auth.login'))
+
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        # Create a new user if it doesn't exist
+        import secrets
+        username = user_info.get('name') or email.split('@')[0]
+        user = User(username=username, email=email)
+        user.set_password(secrets.token_hex(16))
+        db.session.add(user)
+        db.session.commit()
+    
+    login_user(user)
+    return redirect(url_for('main.index'))
 
 def is_password_strong(password):
     if len(password) < 8:
