@@ -1,5 +1,9 @@
 import os
 import secrets
+from dotenv import load_dotenv
+
+# Load environment variables from .env file immediately
+load_dotenv()
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
