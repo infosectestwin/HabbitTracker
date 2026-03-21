@@ -1,6 +1,10 @@
 from app import create_app, db
 from app.models import User, Habit, HabitLog
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 app = create_app()
 
